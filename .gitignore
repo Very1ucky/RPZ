@@ -1,0 +1,7 @@
+Code/BLDC_STM32/*.cfg
+Code/BLDC_STM32/*.yaml
+Code/BLDC_STM32/*.make
+Code/BLDC_STM32/build/*
+Code/BLDC_STM32/.vscode/*
+*.slxc
+

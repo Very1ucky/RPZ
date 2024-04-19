@@ -1,0 +1,76 @@
+%% Преамбула TeX-файла
+
+% 1. Стиль и язык
+\documentclass{G7-32} % Стиль (по умолчанию будет 14pt)
+
+% Остальные стандартные настройки убраны в preamble.inc.tex.
+\include{preamble.inc}
+
+% Настройки листингов.
+\ifPDFTeX
+\include{listings.inc}
+\else
+\usepackage{local-minted}
+\fi
+
+% Полезные макросы листингов.
+\include{macros.inc}
+
+
+\begin{document}
+
+\frontmatter % выключает нумерацию ВСЕГО; здесь начинаются ненумерованные главы: реферат, введение, глоссарий, сокращения и прочее.
+
+\include{00-title}
+
+
+
+%\listoffigures                         % Список рисунков
+
+%\listoftables                          % Список таблиц
+
+%\NormRefs % Нормативные ссылки 
+% Команды \breakingbeforechapters и \nonbreakingbeforechapters
+% управляют разрывом страницы перед главами.
+% По-умолчанию страница разрывается.
+
+% \nobreakingbeforechapters
+% \breakingbeforechapters
+%\include{01-TechTask}
+
+\tableofcontents
+\thispagestyle{empty}
+
+\include{12-intro}
+
+\mainmatter % это включает нумерацию глав и секций в документе ниже
+
+\include{20-bldc_info}
+\include{30-overview}
+\include{40-my_own_system}
+\include{50-modeling}
+\include{60-designing}
+%\include{70-analysis}
+
+\backmatter %% Здесь заканчивается нумерованная часть документа и начинаются ссылки и
+            
+\include{80-conclusion}%% заключение
+
+\include{81-biblio}
+
+
+\appendix   % Тут идут приложения
+
+%\include{90-appendix1}
+%\include{90-appendix2}
+%\include{90-appendix3}
+%\include{90-appendix4}
+%\include{90-appendix5}
+%\include{90-appendix6}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
