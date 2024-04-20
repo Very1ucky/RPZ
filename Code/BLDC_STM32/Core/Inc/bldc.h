@@ -1,11 +1,12 @@
 #ifndef BLDC_H
 #define BLDC_H
 
-#include "main.h"
+//#include "main.h"
 #include "stm32f4xx_hal.h"
 #include "stdint.h"
 #include "stdbool.h"
 #include "smo.h"
+#include "dtc.h"
 
 #define L_IN_STATE RESET
 #define H_IN_STATE SET
@@ -18,7 +19,16 @@ typedef enum {
     U
 } PwmChannels;
 
-void bldc_start();
-void pwm_tim_middle_period_callback();
+typedef enum {
+    V1,
+    V2,
+    V3,
+    V4,
+    V5,
+    V6
+} InverterStates;
+
+void bldc_blind_start();
+void bldc_dtc_step();
 
 #endif

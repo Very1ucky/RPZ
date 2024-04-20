@@ -110,6 +110,14 @@ void estimate_theta_e_and_w_m() {
     last_related_w_m = related_w_m;
 }
 
+float *get_theta_e_ptr() {
+    return &hat_theta_e;
+}
+
+float *get_w_m_ptr() {
+    return &hat_w_m;
+}
+
 static int sgn(float val) {
     return (0 < val) - (val < 0);
 } 

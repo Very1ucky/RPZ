@@ -1,8 +1,8 @@
 #ifndef ADC_DATA_TRANSF_H
 #define ADC_DATA_TRANSF_H
 
-#include "main.h"
 #include "bldc.h"
+#include "main.h"
 
 #define ADC_TRANSFER_COUNT 3
 

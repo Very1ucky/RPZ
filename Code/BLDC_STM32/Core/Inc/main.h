@@ -31,6 +31,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
 #include <stdio.h>
 #include <string.h>
 
@@ -60,7 +61,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-__STATIC_INLINE void DWT_Delay_us(volatile uint32_t au32_microseconds);
+void DWT_Delay_us(volatile uint32_t au32_microseconds);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

@@ -8,6 +8,7 @@ static GPIO_TypeDef *ch_in_port;
 static uint16_t ch_in_pin;
 static uint32_t tim_channel;
 
+static float *theta_e;
 
 static uint8_t pwm_persentage = 100;
 
@@ -20,36 +21,82 @@ static bool commut_table[][6] = {
     {1, 0, 0, 1, 0, 0}
 };
 
-static uint8_t cur_commut_step = 0;
-
+static inline InverterStates get_new_commut_state(float voltage_coef);
 static uint32_t get_pwm_compare_from_persentage(uint8_t persentage);
 
 void enable_xLH(PwmChannels channel, bool is_H_openned);
 void disable_xLH(PwmChannels channel, bool is_H_openned);
 
-static void next_commut_step();
+static void set_commut_step(uint8_t commut_step);
 
 void bldc_init() {
   smo_init();
+  dtc_init();
+  theta_e = get_theta_e_ptr();
 }
 
-void bldc_start() {
+void bldc_blind_start() {
+  InverterStates commut_step = 0;
   int i = 20000;
   // Motor start
   while (i > 100) {
     DWT_Delay_us(i / 8);
-    next_commut_step();
+    set_commut_step(commut_step++);
+    commut_step %= 6;
     i = i - 5;
   }
 }
 
-static void next_commut_step() {
-  ++cur_commut_step;
-  if (cur_commut_step == 6) {
-    cur_commut_step = 0;
-  } 
+void bldc_dtc_step() {
+  static float voltage_coef = 0;
 
-  bool *new_inverter_state = commut_table[cur_commut_step];
+  estimate_e_albet();
+  estimate_theta_e_and_w_m();
+
+  voltage_coef = calculate_voltage_coef(REFERENCE_SPEED);
+  pwm_persentage = (uint8_t)fabsf(voltage_coef)*100;
+  InverterStates new_state = get_new_commut_state(voltage_coef);
+  set_commut_step(new_state);
+}
+
+static inline InverterStates get_new_commut_state(float voltage_coef) {
+  InverterStates s = 0;
+  if (voltage_coef >= 0) {
+    if ((*theta_e >= 0 && *theta_e <= PI/6) || *theta_e > 11*PI/6) {
+      s = V2;
+    } else if (*theta_e > PI/6 && *theta_e <= PI/2) {
+      s = V3;
+    } else if (*theta_e > PI/2 && *theta_e <= 5*PI/6) {
+      s = V4;
+    } else if (*theta_e > 5*PI/6 && *theta_e <= 7*PI/6) {
+      s = V5;
+    } else if (*theta_e > 7*PI/6 && *theta_e <= 3*PI/2) {
+      s = V6;
+    } else if (*theta_e > 3*PI/2 && *theta_e <= 11*PI/6) {
+      s = V1;
+    }
+  } else {
+    if ((*theta_e >= 0 && *theta_e <= PI/6) || *theta_e > 11*PI/6) {
+      s = V5;
+    } else if (*theta_e > PI/6 && *theta_e <= PI/2) {
+      s = V6;
+    } else if (*theta_e > PI/2 && *theta_e <= 5*PI/6) {
+      s = V1;
+    } else if (*theta_e > 5*PI/6 && *theta_e <= 7*PI/6) {
+      s = V2;
+    } else if (*theta_e > 7*PI/6 && *theta_e <= 3*PI/2) {
+      s = V3;
+    } else if (*theta_e > 3*PI/2 && *theta_e <= 11*PI/6) {
+      s = V4;
+    }
+  }
+
+  return s;
+}
+
+static void set_commut_step(uint8_t commut_step) {
+
+  bool *new_inverter_state = commut_table[commut_step];
 
   for (uint8_t inv_key_state_pos = 0; inv_key_state_pos < 6; ++inv_key_state_pos) {
     if (new_inverter_state[inv_key_state_pos] != cur_inv_state[inv_key_state_pos]) {
@@ -155,31 +202,4 @@ void disable_xH(PwmChannels channel) {
   }
 
   cur_inv_state[channel * 2 + 1] = false;
-}
-
-static void inv_v1() {
-  enable_xH(W);
-  enable_xL(U);
-  disable_xH(V);
-}
-static void inv_v2() {
-
-  disable_xL(U);
-  enable_xL(V);
-}
-static void step_three() {
-  disable_xH(W);
-  enable_xH(U);
-}
-static void step_four() {
-  disable_xL(V);
-  enable_xL(W);
-}
-static void step_five() {
-  disable_xH(U);
-  enable_xH(V);
-}
-static void step_six() {
-  disable_xL(W);
-  enable_xL(U);
 }

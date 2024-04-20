@@ -16,4 +16,12 @@
 #define SMO_f_cutoff 1200
 #define SMO_w_max 10000
 
+/*dtc parameters*/
+#define DTC_w_m_K_p 2.385
+#define DTC_w_m_K_i 0.05
+#define DTC_T_e_K_p 0.01
+#define DTC_T_e_K_i 0.09
+
+#define REFERENCE_SPEED 400
+
 #endif

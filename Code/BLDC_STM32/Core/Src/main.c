@@ -108,7 +108,7 @@ int main(void)
   HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_3);
   // initial start of bldc on low speed
-  bldc_start();
+  bldc_blind_start();
   // enable update interrupts to detect point of changing bldc commutation step
   //sprintf(str, "Count: %d, PWM: %d\r\n", __HAL_TIM_GET_COUNTER(&htim1), HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8));
   // make UEV occurs only on over
@@ -440,14 +440,14 @@ uint32_t DWT_Delay_Init(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
   if (htim->Instance == TIM1) {
-    pwm_tim_middle_period_callback();
+    //pwm_tim_middle_period_callback();
     
     //sprintf(str, "Count: %d, PWM: %d\r\n", htim->Instance->CNT, HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8));
     //HAL_UART_Transmit_DMA(&huart2, str, strlen(str));;
   }
 }
 
-__STATIC_INLINE void DWT_Delay_us(volatile uint32_t au32_microseconds) {
+void DWT_Delay_us(volatile uint32_t au32_microseconds) {
   uint32_t au32_initial_ticks = DWT->CYCCNT;
   uint32_t au32_ticks = (HAL_RCC_GetHCLKFreq() / 1000000);
   au32_microseconds *= au32_ticks;
