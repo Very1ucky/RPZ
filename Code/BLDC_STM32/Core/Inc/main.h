@@ -37,6 +37,7 @@ extern "C" {
 
 #include "bldc.h"
 #include "retarget.h"
+#include "motor_data_worker.h"
 
 /* USER CODE END Includes */
 
@@ -71,14 +72,14 @@ void DWT_Delay_us(volatile uint32_t au32_microseconds);
 #define S_V_GPIO_Port GPIOC
 #define S_U_Pin GPIO_PIN_3
 #define S_U_GPIO_Port GPIOC
-#define I_SENS_Pin GPIO_PIN_0
-#define I_SENS_GPIO_Port GPIOA
-#define V_W_Pin GPIO_PIN_1
-#define V_W_GPIO_Port GPIOA
-#define V_V_Pin GPIO_PIN_4
-#define V_V_GPIO_Port GPIOA
 #define V_U_Pin GPIO_PIN_0
-#define V_U_GPIO_Port GPIOB
+#define V_U_GPIO_Port GPIOA
+#define V_V_Pin GPIO_PIN_1
+#define V_V_GPIO_Port GPIOA
+#define W_W_Pin GPIO_PIN_4
+#define W_W_GPIO_Port GPIOA
+#define I_SENS_Pin GPIO_PIN_0
+#define I_SENS_GPIO_Port GPIOB
 #define W_IN_Pin GPIO_PIN_13
 #define W_IN_GPIO_Port GPIOB
 #define V_IN_Pin GPIO_PIN_14

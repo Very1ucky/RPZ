@@ -3,6 +3,8 @@
 
 #define ENABLE_LOG_PRINT 1
 
+#define FLOATS_TRANSFER_COUNT 6
+
 /*motor parameters*/
 #define MOTOR_R_s 0.1
 #define MOTOR_L_s 0.0225
@@ -22,6 +24,8 @@
 #define DTC_T_e_K_p 0.01
 #define DTC_T_e_K_i 0.09
 
-#define REFERENCE_SPEED 400
+#define REFERENCE_SPEED 1400.0
+
+#include <stdint.h>
 
 #endif

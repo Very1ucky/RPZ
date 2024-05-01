@@ -4,9 +4,14 @@
 #include "bldc.h"
 #include "main.h"
 
-#define ADC_TRANSFER_COUNT 3
+void start_adc_transfer();
+void parse_adc_data();
 
+float *get_i_abc_ptr();
 float *get_i_albet_ptr();
+
+float *get_u_abc_ptr();
 float *get_u_albet_ptr();
+
 
 #endif

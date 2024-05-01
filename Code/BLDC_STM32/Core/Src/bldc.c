@@ -24,22 +24,26 @@ static bool commut_table[][6] = {
 static inline InverterStates get_new_commut_state(float voltage_coef);
 static uint32_t get_pwm_compare_from_persentage(uint8_t persentage);
 
-void enable_xLH(PwmChannels channel, bool is_H_openned);
-void disable_xLH(PwmChannels channel, bool is_H_openned);
+void enable_xLH(PwmChannels channel, bool is_H_op);
+void disable_xLH(PwmChannels channel, bool is_H_op);
 
 static void set_commut_step(uint8_t commut_step);
 
 void bldc_init() {
+  uart_transmit_init();
+  start_adc_transfer();
   smo_init();
   dtc_init();
   theta_e = get_theta_e_ptr();
 }
 
 void bldc_blind_start() {
-  InverterStates commut_step = 0;
-  int i = 20000;
+  
+  InverterStates commut_step = V1;
+  int i = 1000;
   // Motor start
   while (i > 100) {
+    parse_adc_data();
     DWT_Delay_us(i / 8);
     set_commut_step(commut_step++);
     commut_step %= 6;
@@ -50,11 +54,13 @@ void bldc_blind_start() {
 void bldc_dtc_step() {
   static float voltage_coef = 0;
 
+  parse_adc_data();
+
   estimate_e_albet();
   estimate_theta_e_and_w_m();
 
   voltage_coef = calculate_voltage_coef(REFERENCE_SPEED);
-  pwm_persentage = (uint8_t)fabsf(voltage_coef)*100;
+  pwm_persentage = (uint8_t)(fabsf(voltage_coef)*100);
   InverterStates new_state = get_new_commut_state(voltage_coef);
   set_commut_step(new_state);
 }
@@ -100,12 +106,12 @@ static void set_commut_step(uint8_t commut_step) {
 
   for (uint8_t inv_key_state_pos = 0; inv_key_state_pos < 6; ++inv_key_state_pos) {
     if (new_inverter_state[inv_key_state_pos] != cur_inv_state[inv_key_state_pos]) {
-      PwmChannels cur_channel = inv_key_state_pos / 3;
-      bool is_H_openned = inv_key_state_pos % 2 == 0;
+      PwmChannels cur_channel = inv_key_state_pos / 2;
+      bool is_H_op = inv_key_state_pos % 2 == 0;
       if (new_inverter_state[inv_key_state_pos] == true) {
-        enable_xLH(cur_channel, is_H_openned);
+        enable_xLH(cur_channel, is_H_op);
       } else {
-        disable_xLH(cur_channel, is_H_openned);
+        disable_xLH(cur_channel, is_H_op);
       }
     }
   }
@@ -146,22 +152,35 @@ static inline void disable_pwm() {
   __HAL_TIM_SET_COMPARE(&htim1, tim_channel, 0);
 }
 
-void enable_xLH(PwmChannels channel, bool is_H_openned) {
+void enable_xLH(PwmChannels channel, bool is_H_op) {
   set_local_vars_from(channel);
 
-  HAL_GPIO_WritePin(ch_in_port, ch_in_pin, is_H_openned);
-  enable_pwm();
-  cur_inv_state[channel * 2 + is_H_openned] = true;
+  if (is_H_op) {
+    HAL_GPIO_WritePin(ch_in_port, ch_in_pin, H_IN_STATE);
+    enable_pwm();
+    cur_inv_state[channel * 2] = true;
+  } else {
+    HAL_GPIO_WritePin(ch_in_port, ch_in_pin, L_IN_STATE);
+    enable_pwm();
+    cur_inv_state[channel * 2 + 1] = true;
+  }
 }
 
-void disable_xLH(PwmChannels channel, bool is_H_openned) {
+void disable_xLH(PwmChannels channel, bool is_H_op) {
   set_local_vars_from(channel);
 
-  if (cur_inv_state[channel * 2 + is_H_openned]) {
-    HAL_GPIO_WritePin(ch_in_port, ch_in_pin, is_H_openned);
+  if (is_H_op) {
+    if (!cur_inv_state[channel * 2 + 1]) {
+      disable_pwm();
+    }
+    cur_inv_state[channel * 2] = false;
   } else {
-    disable_pwm();
+    if (!cur_inv_state[channel * 2]) {
+      disable_pwm();
+    }
+    cur_inv_state[channel * 2 + 1] = false;
   }
+
 }
 
 void enable_xL(PwmChannels channel) {
