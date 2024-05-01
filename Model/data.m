@@ -1,20 +1,3 @@
-%% observer calc
-R = 0.578655;
-L = 0.578655/300;
-A = [R/L -1/L; 0 0]
-B = [1/L; 0]
-C = [1 0]
-D = 0;
-sys = ss(A, B, C, D)
-eig(sys)
-Q = obsv(sys);
-rank(A)
-rank(B)
-L_T = place(A', C', [-50003, -49000])
-LT = L_T'
-K1 = LT(1)
-K2 = LT(2)
-
 %%
 V = 12;
 
@@ -59,27 +42,34 @@ err_e = [res.err_e.signals(1).values res.err_e.signals(2).values];
 err_T_e = [res.err_T_e.signals.values];
 h = figure();
 set(h, 'DefaultAxesFontSize', 32, 'DefaultAxesFontName', 'Times New Roman');
-tiledlayout(1,1)
-nexttile
-plot(res.w.time, w, LineWidth=2.5);
+tiledlayout(2,2)
+nt1 = nexttile(1, [2 1]);
+pl = plot(res.w.time, w, LineWidth=3);
+pl(1).LineStyle = ":";
+pl(2).LineStyle = "-";
+pl(3).LineStyle = "--";
+ylim([-100 650])
 grid on
 xlabel('t, c');
-ylabel('\omega, rad/s');
+ylabel('\omega, рад/с');
 legend('$\omega_{ref}$', '$\hat{\omega}_m$', '$\omega_m$', 'Interpreter', 'latex')
 xlim([0 0.9])
-h = figure();
-set(h, 'DefaultAxesFontSize', 32, 'DefaultAxesFontName', 'Times New Roman');
-tiledlayout(2,1)
-nexttile
-plot(res.err_e.time, err_e, LineWidth=2.5);
+%h = figure();
+%set(h, 'DefaultAxesFontSize', 32, 'DefaultAxesFontName', 'Times New Roman');
+%tiledlayout(2,1)
+nt2 = nexttile;
+plot(res.err_e.time, err_e, LineWidth=1);
 grid on
-xlabel('t, c');
-ylabel('$\tilde{e}_{\alpha\beta}$', 'Interpreter', 'latex');
+%xlabel('t, c');
+xlim([0 0.9])
+ylabel('$\tilde{e}_{\alpha\beta}$, B', 'Interpreter', 'latex');
 legend('$\tilde{e}_{\alpha}$', '$\tilde{e}_{\beta}$', 'Interpreter', 'latex')
-nexttile
-plot(res.err_T_e.time, err_T_e, LineWidth=2.5);
+nt3 = nexttile;
+plot(res.err_T_e.time, err_T_e, LineWidth=2);
 grid on
 xlabel('t, c');
-ylabel('$\tilde{T}_e$', 'Interpreter', 'latex');
+ylabel('$\tilde{T}_e$, Hm', 'Interpreter', 'latex');
 ylim([-0.01 0.01])
+xlim([0 0.9])
 
+linkaxes([nt1 nt2 nt3], 'x')

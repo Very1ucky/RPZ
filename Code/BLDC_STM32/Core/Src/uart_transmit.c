@@ -2,7 +2,7 @@
 
 extern UART_HandleTypeDef huart2;
 
-extern uint8_t arr_to_transmit[];
+uint8_t arr_to_transmit[FLOATS_TRANSFER_COUNT*4+4];
 
 void uart_transmit_init() {
     arr_to_transmit[FLOATS_TRANSFER_COUNT*sizeof(float)] = '\n';

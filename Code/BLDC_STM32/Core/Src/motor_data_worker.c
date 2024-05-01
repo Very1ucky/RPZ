@@ -3,7 +3,7 @@
 extern ADC_HandleTypeDef hadc1;
 extern bool cur_inv_state[6];
 
-uint8_t arr_to_transmit[FLOATS_TRANSFER_COUNT*4+4];
+extern uint8_t arr_to_transmit[];
 
 uint16_t adc_data[4];
 static float i;
@@ -21,7 +21,7 @@ static void extract_motor_data_from_adc();
 void start_adc_transfer() {
     i_abc = &((float *)arr_to_transmit)[0];
     u_abc = &((float *)arr_to_transmit)[3];
-    HAL_ADC_Start_DMA(&hadc1, adc_data, 4);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_data, 4);
 }
 
 void parse_adc_data() {
@@ -46,8 +46,6 @@ float *get_u_abc_ptr() {
 float *get_u_albet_ptr() {
     return u_albet;
 }
-
-
 
 static void extract_motor_data_from_adc() {
     u_abc[0] = (float)adc_data[0]/4096*12.0*2;

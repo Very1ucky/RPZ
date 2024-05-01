@@ -1,7 +1,9 @@
 #include "smo.h"
 
-static float hat_theta_e;
-static float hat_w_m;
+extern uint8_t arr_to_transmit[];
+
+static float *p_hat_theta_e;
+static float *p_hat_w_m;
 
 static float hat_e_albet_filt[2];
 
@@ -17,6 +19,8 @@ static int sgn(float val);
 static void relay(bool *relay_state, float val);
 
 void smo_init() {
+    p_hat_theta_e = &((float *)arr_to_transmit)[6];
+    p_hat_w_m = &((float *)arr_to_transmit)[7];
     i_albet = get_i_albet_ptr();
     u_albet = get_u_albet_ptr();
     a = expf(-MOTOR_R_s/MOTOR_L_s*T_s);
@@ -98,24 +102,24 @@ void estimate_theta_e_and_w_m() {
         e_atan2 += 2*PI;
     }
 
-    hat_theta_e = e_atan2;
+    *p_hat_theta_e = e_atan2;
 
-    related_w_m = ((hat_theta_e-last_theta_e)/T_s/MOTOR_p*60/2/PI)/(SMO_w_max*MOTOR_p);
+    related_w_m = ((*p_hat_theta_e-last_theta_e)/T_s/MOTOR_p*60/2/PI)/(SMO_w_max*MOTOR_p);
     discrete_lowpass_filter(&related_w_m, &related_w_m, &last_related_w_m, W_FIL_COEF);
     c = related_w_m;
 
-    hat_w_m = related_w_m*SMO_w_max*2*PI/60;
+    *p_hat_w_m = related_w_m*SMO_w_max*2*PI/60;
 
-    last_theta_e = hat_theta_e;
+    last_theta_e = *p_hat_theta_e;
     last_related_w_m = related_w_m;
 }
 
 float *get_theta_e_ptr() {
-    return &hat_theta_e;
+    return p_hat_theta_e;
 }
 
 float *get_w_m_ptr() {
-    return &hat_w_m;
+    return p_hat_w_m;
 }
 
 static int sgn(float val) {

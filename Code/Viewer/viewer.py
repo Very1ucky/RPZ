@@ -1,3 +1,5 @@
+from cProfile import label
+from math import pi
 import serial
 
 import matplotlib.pyplot as plt 
@@ -7,15 +9,20 @@ import threading
 
 plt.ion()
 
-plt.pause(1) 
+plt.pause(0.1) 
 
 baudrate = 115200
-meas_counts = 5000
+com_port = "COM11"
+visible_meas_count = 5000
+packet_data_count = 8
+
+packet_length = packet_data_count*4 + 4
+period = 1/(baudrate/packet_length)
 
 
-def read_port(period, packet_data_count, lines, time_points, data_points_arr):
+def read_port(period, packet_data_count, time_points, data_points_arr):
     t = 0
-    ser = serial.Serial("COM11", baudrate)
+    ser = serial.Serial(com_port, baudrate)
     
     while True:
         data = ser.read_until(b'\n\n\n\n')
@@ -29,26 +36,24 @@ def read_port(period, packet_data_count, lines, time_points, data_points_arr):
                     
         t += period
 
-packet_data_count = 6
-packet_length = packet_data_count*4 + 4
-period = 1/(baudrate/packet_length)
+time_points = deque(maxlen=visible_meas_count) 
 
-# Create a fixed-length deque to store the data points 
-time_points = deque(maxlen=meas_counts) 
+data_points_arr = [deque(maxlen=visible_meas_count) for _ in range(packet_data_count)]
 
-data_points_arr = [deque(maxlen=meas_counts) for _ in range(packet_data_count)]
+fig, ((cur, vol), (w, theta)) = plt.subplots(2, 2, sharex=True) 
+lines = [cur.plot([], label=r"$i_W$")[0], cur.plot([], label=r"$i_V$")[0], cur.plot([], label=r"$i_U$")[0], vol.plot([], label=r"$v_W$")[0], vol.plot([], label=r"$v_V$")[0], vol.plot([], label=r"$v_U$")[0], w.plot([])[0], theta.plot([])[0]]
 
-# Create an empty plot 
-fig, (cur, vol) = plt.subplots(2, 1, sharex=True) 
-lines = [cur.plot([])[0], cur.plot([])[0], cur.plot([])[0], vol.plot([])[0], vol.plot([])[0], vol.plot([])[0]]
-
-# Set the x-axis and y-axis limits 
-cur.set_xlim(0, period*meas_counts) 
+cur.set_xlim(0, period*visible_meas_count) 
 cur.set_ylim(-5, 5)
+cur.legend()
 
-vol.set_ylim(-12, 12) 
+vol.set_ylim(-12, 12)
+vol.legend()
 
-t1 = threading.Thread(target=read_port, args=(period, packet_data_count, lines, time_points, data_points_arr))
+w.set_ylim(0, 700)
+theta.set_ylim(0, 2*pi)
+
+t1 = threading.Thread(target=read_port, args=(period, packet_data_count, time_points, data_points_arr))
 t1.start()
 
 while True:
@@ -57,7 +62,7 @@ while True:
         cur.set_xlim(time_points[0], time_points[-1])
     for i in range(packet_data_count):
         lines[i].set_data(time_points, data_points_arr[i])
-    plt.pause(0.5) 
+    plt.pause(0.1) 
     
     
 
