@@ -20,6 +20,7 @@ RUN apt-get update \
   texlive-plain-generic \
   texlive-fonts-extra \
   texlive-extra-utils
+  
 
 RUN dpkg-query --showformat='${binary:Package}\n' --show '*-doc' \
   | xargs apt-get -y remove

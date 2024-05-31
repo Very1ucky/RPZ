@@ -1,7 +1,7 @@
 %% Преамбула TeX-файла
 
 % 1. Стиль и язык
-\documentclass{G7-32} % Стиль (по умолчанию будет 14pt)
+\documentclass[utf8x, times, 14pt]{G7-32} % Стиль (по умолчанию будет 14pt)
 
 % Остальные стандартные настройки убраны в preamble.inc.tex.
 \include{preamble.inc}
@@ -15,13 +15,13 @@
 
 % Полезные макросы листингов.
 \include{macros.inc}
-
+\usepackage{pdfpages}
 
 \begin{document}
 
 \frontmatter % выключает нумерацию ВСЕГО; здесь начинаются ненумерованные главы: реферат, введение, глоссарий, сокращения и прочее.
 
-\include{00-title}
+%\include{00-title}
 
 
 
@@ -37,9 +37,11 @@
 % \nobreakingbeforechapters
 % \breakingbeforechapters
 %\include{01-TechTask}
+\includepdf[pages=-]{/doc/tex/title.pdf}
+\includepdf[pages=-]{/doc/tex/techtask.pdf}
+\includepdf[pages=-]{/doc/tex/annotation.pdf}
 
 \tableofcontents
-\thispagestyle{empty}
 
 \include{12-intro}
 
@@ -47,10 +49,11 @@
 
 \include{20-bldc_info}
 \include{30-overview}
+\include{31-task}
 \include{40-my_own_system}
 \include{50-modeling}
 \include{60-designing}
-%\include{70-analysis}
+\include{70-analysis}
 
 \backmatter %% Здесь заканчивается нумерованная часть документа и начинаются ссылки и
             

@@ -3,13 +3,13 @@
 
 #define ENABLE_LOG_PRINT 1
 
-#define FLOATS_TRANSFER_COUNT 6
+#define FLOATS_TRANSFER_COUNT 9
 
 /*motor parameters*/
 #define MOTOR_R_s 0.1
 #define MOTOR_L_s 0.0225
 #define MOTOR_p 4
-#define T_s 0.00001
+#define T_s 0.0001
 #define MAX_STATOR_VOLTAGE 12
 
 /*smo parameters*/

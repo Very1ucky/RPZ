@@ -4,6 +4,7 @@ extern uint8_t arr_to_transmit[];
 
 static float *p_hat_theta_e;
 static float *p_hat_w_m;
+static volatile uint32_t *p_cur_tick;
 
 static float hat_e_albet_filt[2];
 
@@ -21,6 +22,7 @@ static void relay(bool *relay_state, float val);
 void smo_init() {
     p_hat_theta_e = &((float *)arr_to_transmit)[6];
     p_hat_w_m = &((float *)arr_to_transmit)[7];
+    p_cur_tick = &((uint32_t *)arr_to_transmit)[8];
     i_albet = get_i_albet_ptr();
     u_albet = get_u_albet_ptr();
     a = expf(-MOTOR_R_s/MOTOR_L_s*T_s);
@@ -112,6 +114,8 @@ void estimate_theta_e_and_w_m() {
 
     last_theta_e = *p_hat_theta_e;
     last_related_w_m = related_w_m;
+
+    *p_cur_tick += 1;
 }
 
 float *get_theta_e_ptr() {
